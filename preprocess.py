@@ -53,6 +53,7 @@ def validation_image_load(pillow_img, target_size):
     #       : target_size = resized width / height
     # output : uint8 numpy array
     """
-    return np.asarray(pillow_img, np.uint8)
+    resized = pillow_img.resize((target_size, target_size), Image.LINEAR)
+    return np.asarray(resized, np.uint8)
 
 

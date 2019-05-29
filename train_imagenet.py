@@ -1,5 +1,8 @@
+import tensorflow as tf
 import tensorflow.keras as keras
+from tensorflow.contrib.tpu.python.tpu import keras_support
 import numpy as np
+import os
 
 from utils import load_caches
 from generator import imagenet_generator
@@ -12,8 +15,8 @@ def top1(y_true, y_pred):
 def top5(y_true, y_pred):
     return keras.metrics.top_k_categorical_accuracy(y_true, y_pred, k=5)
 
-IMAGE_NET_ROOT = "E:/Python/ImageNet/imagenet_2"
-
+USE_TPU = True
+IMAGE_NET_ROOT = "E:/Python/ImageNet/imagenet_2" if not USE_TPU else "./imagenet_2"
 
 class CustomScuduling():
     def __init__(self, epoch_offset, initial_lr):
@@ -51,12 +54,19 @@ def train(network, epoch_offset):
         size = 224
         preprocess = resnet50.preprocess_input
 
-    train_batch_size, val_batch_size = 32, 25
+    train_batch_size, val_batch_size = 1024, 1000
     nb_epoch = 2
 
     initial_lr = 0.1 * train_batch_size / 256
     model.compile(keras.optimizers.SGD(initial_lr, 0.9), "categorical_crossentropy", 
                   [top1, top5])
+
+    if USE_TPU:
+        # convert to tpu model
+        tpu_grpc_url = "grpc://"+os.environ["COLAB_TPU_ADDR"]
+        tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(tpu_grpc_url)
+        strategy = keras_support.TPUDistributionStrategy(tpu_cluster_resolver)
+        model = tf.contrib.tpu.keras_to_tpu_model(model, strategy=strategy)
 
     cache = load_caches(IMAGE_NET_ROOT)
     n_train, n_val = len(cache["train"]), len(cache["val"])

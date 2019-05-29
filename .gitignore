@@ -110,3 +110,4 @@ venv.bak/
 
 # Custom cache file
 cache.pkl
+test.py
