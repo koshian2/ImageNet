@@ -54,7 +54,8 @@ def train(network, epoch_offset):
         size = 224
         preprocess = resnet50.preprocess_input
 
-    train_batch_size, val_batch_size = 1024, 1000
+    if USE_TPU:
+        train_batch_size, val_batch_size = 1280, 1000
     nb_epoch = 2
 
     initial_lr = 0.1 * train_batch_size / 256
@@ -80,7 +81,7 @@ def train(network, epoch_offset):
 
     model.fit_generator(train_gen, steps_per_epoch=n_train//train_batch_size, epochs=nb_epoch,
                         validation_data=val_gen, validation_steps=n_val//val_batch_size,
-                        max_queue_size=1, callbacks=[scheduler])
+                        max_queue_size=3, callbacks=[scheduler])
 
 if __name__ == "__main__":
     train("resnet50", 0)
