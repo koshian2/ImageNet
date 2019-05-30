@@ -41,9 +41,9 @@ def imagenet_data_augmentation(pillow_img, target_size,
     if np.random.random() >= 0.5:
         resized = ImageOps.mirror(resized)
     # auto contrast (a bit slow)
-    #if np.random.random() >= 0.5:
-    #    resized = ImageOps.autocontrast(resized, 
-    #                    np.random.uniform(0, 1.0), ignore=0) # ignore black background
+    if np.random.random() >= 0.5:
+        resized = ImageOps.autocontrast(resized, 
+                        np.random.uniform(0, 1.0), ignore=0) # ignore black background
     return np.asarray(resized, np.uint8)
 
 def validation_image_load(pillow_img, target_size):

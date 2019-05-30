@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 from utils import load_caches
-from generator import imagenet_generator
+from generator import imagenet_generator, fake_data_generator
 from imagenet_models import resnet50, sandbox_model
 
 
@@ -64,7 +64,7 @@ def train(network, epoch_offset):
 
     initial_lr = 0.1 * train_batch_size / 256
     model.compile(keras.optimizers.SGD(initial_lr, 0.9), "categorical_crossentropy", 
-                  [top1, top5])
+                  [top1])
 
     if USE_TPU:
         # convert to tpu model
@@ -76,8 +76,11 @@ def train(network, epoch_offset):
     cache = load_caches(IMAGE_NET_ROOT)
     n_train, n_val = len(cache["train"]), len(cache["val"])
 
-    train_gen = imagenet_generator(cache["train"], size, True, train_batch_size, preprocess)
-    val_gen = imagenet_generator(cache["val"], size, False, val_batch_size, preprocess)
+    # train_gen = imagenet_generator(cache["train"], size, True, train_batch_size, preprocess)
+    # val_gen = imagenet_generator(cache["val"], size, False, val_batch_size, preprocess)
+    train_gen = fake_data_generator(size, train_batch_size, preprocess)
+    val_gen = fake_data_generator(size, train_batch_size, preprocess)
+    # fake_data_generator
 
     scheduler_obj = CustomScuduling(epoch_offset, initial_lr)
     scheduler = keras.callbacks.LearningRateScheduler(scheduler_obj.scheduler)
