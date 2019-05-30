@@ -6,7 +6,7 @@ import os
 
 from utils import load_caches
 from generator import imagenet_generator
-from imagenet_models import resnet50
+from imagenet_models import resnet50, sandbox_model
 
 
 def top1(y_true, y_pred):
@@ -53,6 +53,10 @@ def train(network, epoch_offset):
         model = resnet50.ResNet50(include_top=True, weights=None)
         size = 224
         preprocess = resnet50.preprocess_input
+    if network == "test":
+        model = sandbox_model.SandboxModelA()
+        size = 224
+        preprocess = resnet50.preprocess_input
 
     if USE_TPU:
         train_batch_size, val_batch_size = 1280, 1000
@@ -84,4 +88,4 @@ def train(network, epoch_offset):
                         max_queue_size=3, callbacks=[scheduler])
 
 if __name__ == "__main__":
-    train("resnet50", 0)
+    train("test", 0)
