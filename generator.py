@@ -70,7 +70,7 @@ def imagenet_generator_multi(meta_data, size, is_train, batch_size, preprocess_f
             indices = np.arange(len(meta_data))
         for batch_idx in range(indices.shape[0]//batch_size):
             current_indices = indices[batch_idx*batch_size:(batch_idx+1)*batch_size]
-            parallel_result = Parallel(n_jobs=4)( [delayed(parallel_wrap)(meta_data[i], size, is_train)
+            parallel_result = Parallel(n_jobs=4)( [delayed(_parallel_wrap)(meta_data[i], size, is_train)
                                                    for i in current_indices] )
             X_batch = np.asarray([parallel_result[i][0] for i in range(batch_size)], np.uint8)
             y_batch = np.asarray([parallel_result[i][1] for i in range(batch_size)], np.float32)
